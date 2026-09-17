@@ -152,6 +152,31 @@ reconcile against your own assessor's requirements.
 
 ---
 
+### Coverage & scope
+
+Each baseline currently carries **~95 Local Group Policy / security settings**,
+expanded from a DISA Windows STIG–aligned hardening set (account & lockout
+policy, audit policy, LSA/NTLM/anonymous access, UAC, SMB signing, RDP, WinRM,
+Windows Installer, MSS, SmartScreen, Event Log sizing, and more).
+
+Important context on the numbers:
+
+- **CMMC L2 = 110 practices ≈ 320 NIST 800‑171A assessment objectives.** Those
+  are *requirements*, and many are policy / process / physical / personnel
+  controls (training, incident response, media disposal, screening) that **no
+  Group Policy setting can satisfy** — they will never appear in a GPO tool.
+- The **GPO‑enforceable** portion, as expressed by DISA STIG / CIS / Microsoft
+  baselines, is a few hundred individual settings. This tool covers a strong,
+  high‑confidence subset of the **registry‑based** ones.
+- **Not yet included** (a distinct mechanism, planned next): advanced audit
+  policy *subcategories* (`auditpol`) and *user‑rights assignments* (secedit
+  `[Privilege Rights]`), plus org‑defined values (log paths, logon banners).
+
+> These are **STIG‑aligned** values encoded from the public Windows STIG. Treat
+> them as a strong starting baseline to **verify against your current official
+> STIG/benchmark and your assessor's requirements** — not as a certified,
+> byte‑for‑byte STIG import.
+
 ## Safety & scope
 
 - **Authorized use only.** This app changes Local Group Policy and security

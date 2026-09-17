@@ -5,37 +5,290 @@
   "description": "Technical and administrative safeguards for electronic Protected Health Information (ePHI). The HIPAA Security Rule is risk-based rather than prescriptive, so these values reflect common auditor expectations for access control, automatic logoff, and audit controls (45 CFR §164.308 / §164.312).",
   "reference": "https://www.hhs.gov/hipaa/for-professionals/security/index.html",
   "settings": {
-    "PasswordMinLength": { "desired": "8" },
-    "PasswordComplexity": { "desired": "1" },
-    "MaxPasswordAge": { "desired": "90" },
-    "MinPasswordAge": { "desired": "1" },
-    "PasswordHistorySize": { "desired": "6" },
-    "ClearTextPassword": { "desired": "0" },
-    "LockoutThreshold": { "desired": "5" },
-    "LockoutDuration": { "desired": "15" },
-    "ResetLockoutCounter": { "desired": "15" },
-    "GuestAccountDisabled": { "desired": "0" },
-    "LimitBlankPasswordUse": { "desired": "1" },
-    "NoLMHash": { "desired": "1" },
-    "LmCompatibilityLevel": { "desired": "5" },
-    "RestrictAnonymousSAM": { "desired": "1" },
-    "InactivityTimeoutSecs": { "desired": "900" },
-    "UacEnableLUA": { "desired": "1" },
-    "UacAdminPrompt": { "desired": "2" },
-    "SmbV1Server": { "desired": "0" },
-    "RdpRequireNla": { "desired": "1" },
-    "RdpMinEncryption": { "desired": "3" },
-    "FirewallDomainEnable": { "desired": "1" },
-    "FirewallStandardEnable": { "desired": "1" },
-    "FirewallPublicEnable": { "desired": "1" },
-    "DisableAutoRun": { "desired": "255" },
-    "PsScriptBlockLogging": { "desired": "1" },
-    "AuditLogon": { "desired": "3" },
-    "AuditAccountLogon": { "desired": "3" },
-    "AuditAccountManage": { "desired": "3" },
-    "AuditPolicyChange": { "desired": "3" },
-    "AuditPrivilegeUse": { "desired": "2" },
-    "AuditObjectAccess": { "desired": "3" },
-    "AuditSystemEvents": { "desired": "3" }
+    "PasswordMinLength": {
+      "desired": "8"
+    },
+    "PasswordComplexity": {
+      "desired": "1"
+    },
+    "MaxPasswordAge": {
+      "desired": "90"
+    },
+    "MinPasswordAge": {
+      "desired": "1"
+    },
+    "PasswordHistorySize": {
+      "desired": "6"
+    },
+    "ClearTextPassword": {
+      "desired": "0"
+    },
+    "LockoutThreshold": {
+      "desired": "5"
+    },
+    "LockoutDuration": {
+      "desired": "15"
+    },
+    "ResetLockoutCounter": {
+      "desired": "15"
+    },
+    "GuestAccountDisabled": {
+      "desired": "0"
+    },
+    "LimitBlankPasswordUse": {
+      "desired": "1"
+    },
+    "NoLMHash": {
+      "desired": "1"
+    },
+    "LmCompatibilityLevel": {
+      "desired": "5"
+    },
+    "RestrictAnonymousSAM": {
+      "desired": "1"
+    },
+    "InactivityTimeoutSecs": {
+      "desired": "900"
+    },
+    "UacEnableLUA": {
+      "desired": "1"
+    },
+    "UacAdminPrompt": {
+      "desired": "2"
+    },
+    "SmbV1Server": {
+      "desired": "0"
+    },
+    "RdpRequireNla": {
+      "desired": "1"
+    },
+    "RdpMinEncryption": {
+      "desired": "3"
+    },
+    "FirewallDomainEnable": {
+      "desired": "1"
+    },
+    "FirewallStandardEnable": {
+      "desired": "1"
+    },
+    "FirewallPublicEnable": {
+      "desired": "1"
+    },
+    "DisableAutoRun": {
+      "desired": "255"
+    },
+    "PsScriptBlockLogging": {
+      "desired": "1"
+    },
+    "AuditLogon": {
+      "desired": "3"
+    },
+    "AuditAccountLogon": {
+      "desired": "3"
+    },
+    "AuditAccountManage": {
+      "desired": "3"
+    },
+    "AuditPolicyChange": {
+      "desired": "3"
+    },
+    "AuditPrivilegeUse": {
+      "desired": "2"
+    },
+    "AuditObjectAccess": {
+      "desired": "3"
+    },
+    "AuditSystemEvents": {
+      "desired": "3"
+    },
+    "RestrictAnonymous": {
+      "desired": "1"
+    },
+    "EveryoneIncludesAnonymous": {
+      "desired": "0"
+    },
+    "DisableDomainCreds": {
+      "desired": "1"
+    },
+    "ForceSubcategoryAuditPolicy": {
+      "desired": "1"
+    },
+    "RunLsassAsPPL": {
+      "desired": "1"
+    },
+    "RestrictRemoteSam": {
+      "desired": "O:BAG:BAD:(A;;RC;;;BA)"
+    },
+    "NtlmMinClientSec": {
+      "desired": "537395200"
+    },
+    "NtlmMinServerSec": {
+      "desired": "537395200"
+    },
+    "AllowNullSessionFallback": {
+      "desired": "0"
+    },
+    "LocalAccountTokenFilterPolicy": {
+      "desired": "0"
+    },
+    "WDigestUseLogonCredential": {
+      "desired": "0"
+    },
+    "DontDisplayLastUser": {
+      "desired": "1"
+    },
+    "RequireCtrlAltDel": {
+      "desired": "0"
+    },
+    "SmartCardRemovalBehavior": {
+      "desired": "1"
+    },
+    "UacInstallerDetection": {
+      "desired": "1"
+    },
+    "UacSecureUiaPaths": {
+      "desired": "1"
+    },
+    "UacUiaDesktopToggle": {
+      "desired": "0"
+    },
+    "UacAdminApprovalBuiltin": {
+      "desired": "1"
+    },
+    "UacStandardUserPrompt": {
+      "desired": "0"
+    },
+    "UacVirtualization": {
+      "desired": "1"
+    },
+    "UacSecureDesktop": {
+      "desired": "1"
+    },
+    "MssDisableIpSourceRouting": {
+      "desired": "2"
+    },
+    "MssDisableIpSourceRoutingV6": {
+      "desired": "2"
+    },
+    "MssEnableIcmpRedirect": {
+      "desired": "0"
+    },
+    "MssNoNameReleaseOnDemand": {
+      "desired": "1"
+    },
+    "SafeDllSearchMode": {
+      "desired": "1"
+    },
+    "SmbServerSignRequire": {
+      "desired": "1"
+    },
+    "SmbServerSignEnable": {
+      "desired": "1"
+    },
+    "SmbServerForceLogoff": {
+      "desired": "1"
+    },
+    "SmbServerAutoDisconnect": {
+      "desired": "15"
+    },
+    "SmbServerRestrictNullSess": {
+      "desired": "1"
+    },
+    "SmbClientSignRequire": {
+      "desired": "1"
+    },
+    "SmbClientSignEnable": {
+      "desired": "1"
+    },
+    "SmbClientPlaintextPassword": {
+      "desired": "0"
+    },
+    "SmbInsecureGuestAuth": {
+      "desired": "0"
+    },
+    "RdpNoDriveRedirection": {
+      "desired": "1"
+    },
+    "RdpAlwaysPrompt": {
+      "desired": "1"
+    },
+    "RdpSecureRpc": {
+      "desired": "1"
+    },
+    "RdpDisablePasswordSaving": {
+      "desired": "1"
+    },
+    "RemoteAssistanceSolicited": {
+      "desired": "0"
+    },
+    "WinRmClientBasic": {
+      "desired": "0"
+    },
+    "WinRmClientUnencrypted": {
+      "desired": "0"
+    },
+    "WinRmClientDigest": {
+      "desired": "0"
+    },
+    "WinRmServiceBasic": {
+      "desired": "0"
+    },
+    "WinRmServiceUnencrypted": {
+      "desired": "0"
+    },
+    "WinRmServiceRunAs": {
+      "desired": "1"
+    },
+    "InstallerAlwaysElevated": {
+      "desired": "0"
+    },
+    "InstallerUserControl": {
+      "desired": "0"
+    },
+    "ExplorerNoAutorun": {
+      "desired": "1"
+    },
+    "ExplorerDEP": {
+      "desired": "0"
+    },
+    "ExplorerHeapTermination": {
+      "desired": "0"
+    },
+    "ExplorerShellProtocol": {
+      "desired": "0"
+    },
+    "SmartScreenEnable": {
+      "desired": "1"
+    },
+    "SmartScreenLevel": {
+      "desired": "Block"
+    },
+    "PsTranscription": {
+      "desired": "1"
+    },
+    "AllowTelemetry": {
+      "desired": "0"
+    },
+    "NoLockScreenCamera": {
+      "desired": "1"
+    },
+    "NoLockScreenSlideshow": {
+      "desired": "1"
+    },
+    "CredUiNoPasswordReveal": {
+      "desired": "1"
+    },
+    "CredUiNoAdminEnumeration": {
+      "desired": "0"
+    },
+    "EventLogAppSize": {
+      "desired": "32768"
+    },
+    "EventLogSecSize": {
+      "desired": "1024000"
+    },
+    "EventLogSysSize": {
+      "desired": "32768"
+    }
   }
 }

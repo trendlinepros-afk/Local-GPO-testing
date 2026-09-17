@@ -48,7 +48,17 @@
       },
       "serviceImpacts": [
         {
-          "services": ["MSSQLSERVER", "MSSQL$*", "SQLSERVERAGENT", "W3SVC", "Spooler", "*Backup*", "veeam*", "Tomcat*", "Apache*"],
+          "services": [
+            "MSSQLSERVER",
+            "MSSQL$*",
+            "SQLSERVERAGENT",
+            "W3SVC",
+            "Spooler",
+            "*Backup*",
+            "veeam*",
+            "Tomcat*",
+            "Apache*"
+          ],
           "risk": "high",
           "detail": "Long-running services often authenticate with a dedicated account. Enforcing password expiry can lock them out on the expiry date."
         }
@@ -101,7 +111,12 @@
       },
       "serviceImpacts": [
         {
-          "services": ["RemoteAccess", "Netlogon", "IAS", "W3SVC"],
+          "services": [
+            "RemoteAccess",
+            "Netlogon",
+            "IAS",
+            "W3SVC"
+          ],
           "risk": "medium",
           "detail": "RAS/NPS or IIS Digest authentication may rely on reversible-encryption passwords."
         }
@@ -123,7 +138,13 @@
       },
       "serviceImpacts": [
         {
-          "services": ["MSExchange*", "W3SVC", "MSSQLSERVER", "*sync*", "*mail*"],
+          "services": [
+            "MSExchange*",
+            "W3SVC",
+            "MSSQLSERVER",
+            "*sync*",
+            "*mail*"
+          ],
           "risk": "high",
           "detail": "Services that repeatedly present cached credentials can lock out the account under a low threshold."
         }
@@ -176,7 +197,9 @@
       },
       "serviceImpacts": [
         {
-          "services": ["LanmanServer"],
+          "services": [
+            "LanmanServer"
+          ],
           "risk": "medium",
           "detail": "Shares that permit Guest access will refuse anonymous connections once Guest is disabled."
         }
@@ -216,7 +239,10 @@
       },
       "serviceImpacts": [
         {
-          "services": ["LanmanServer", "RemoteAccess"],
+          "services": [
+            "LanmanServer",
+            "RemoteAccess"
+          ],
           "risk": "medium",
           "detail": "Legacy clients that only support LM hashes will fail against file sharing or RAS."
         }
@@ -240,7 +266,11 @@
       },
       "serviceImpacts": [
         {
-          "services": ["LanmanServer", "LanmanWorkstation", "Spooler"],
+          "services": [
+            "LanmanServer",
+            "LanmanWorkstation",
+            "Spooler"
+          ],
           "risk": "high",
           "detail": "File sharing and scan-to-folder printing with legacy devices may fail once only NTLMv2 is accepted."
         }
@@ -299,8 +329,12 @@
       },
       "serviceImpacts": [
         {
-          "services": ["*"],
-          "processes": ["*"],
+          "services": [
+            "*"
+          ],
+          "processes": [
+            "*"
+          ],
           "risk": "medium",
           "detail": "Legacy line-of-business apps that assume they run elevated may need shims or a manifest once UAC is enforced."
         }
@@ -341,7 +375,9 @@
       },
       "serviceImpacts": [
         {
-          "services": ["LanmanServer"],
+          "services": [
+            "LanmanServer"
+          ],
           "risk": "high",
           "detail": "The Server service is running and may be sharing files to legacy SMBv1-only clients."
         }
@@ -364,7 +400,9 @@
       },
       "serviceImpacts": [
         {
-          "services": ["TermService"],
+          "services": [
+            "TermService"
+          ],
           "risk": "medium",
           "detail": "Remote Desktop is enabled; legacy RDP clients without NLA support will be refused."
         }
@@ -387,7 +425,9 @@
       },
       "serviceImpacts": [
         {
-          "services": ["TermService"],
+          "services": [
+            "TermService"
+          ],
           "risk": "low",
           "detail": "Remote Desktop is enabled; only very old clients would be affected."
         }
@@ -410,7 +450,12 @@
       },
       "serviceImpacts": [
         {
-          "services": ["MSSQLSERVER", "W3SVC", "MSExchange*", "*SQL*"],
+          "services": [
+            "MSSQLSERVER",
+            "W3SVC",
+            "MSExchange*",
+            "*SQL*"
+          ],
           "risk": "medium",
           "detail": "Server services listening for inbound connections may be blocked until firewall allow rules are added."
         }
@@ -433,7 +478,11 @@
       },
       "serviceImpacts": [
         {
-          "services": ["MSSQLSERVER", "W3SVC", "*SQL*"],
+          "services": [
+            "MSSQLSERVER",
+            "W3SVC",
+            "*SQL*"
+          ],
           "risk": "medium",
           "detail": "Inbound listeners may be blocked until allow rules exist."
         }
@@ -592,6 +641,1161 @@
       "generalImpact": {
         "risk": "low",
         "detail": "Records system start/stop and security subsystem events. Minimal volume."
+      },
+      "serviceImpacts": []
+    },
+    "RestrictAnonymous": {
+      "name": "Network access: do not allow anonymous enumeration of SAM accounts and shares",
+      "category": "Local Policies · Security Options",
+      "description": "Blocks anonymous listing of accounts and shares. A few legacy trust/migration tools that enumerate anonymously may lose visibility.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Control\\Lsa",
+      "value": "RestrictAnonymous",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "Blocks anonymous listing of accounts and shares. A few legacy trust/migration tools that enumerate anonymously may lose visibility."
+      },
+      "serviceImpacts": []
+    },
+    "EveryoneIncludesAnonymous": {
+      "name": "Network access: let Everyone permissions apply to anonymous users",
+      "category": "Local Policies · Security Options",
+      "description": "Anonymous users no longer inherit Everyone permissions.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Control\\Lsa",
+      "value": "EveryoneIncludesAnonymous",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Anonymous users no longer inherit Everyone permissions."
+      },
+      "serviceImpacts": []
+    },
+    "DisableDomainCreds": {
+      "name": "Network access: do not allow storage of passwords and credentials",
+      "category": "Local Policies · Security Options",
+      "description": "Windows will not cache network credentials. Scheduled tasks or mapped drives relying on stored credentials may prompt or fail.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Control\\Lsa",
+      "value": "DisableDomainCreds",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "Windows will not cache network credentials. Scheduled tasks or mapped drives relying on stored credentials may prompt or fail."
+      },
+      "serviceImpacts": []
+    },
+    "ForceSubcategoryAuditPolicy": {
+      "name": "Audit: force audit policy subcategory settings to override category settings",
+      "category": "Local Policies · Security Options",
+      "description": "Required so advanced (subcategory) audit policy is honoured instead of the legacy nine categories.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Control\\Lsa",
+      "value": "SCENoApplyLegacyAuditPolicy",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Required so advanced (subcategory) audit policy is honoured instead of the legacy nine categories."
+      },
+      "serviceImpacts": []
+    },
+    "RunLsassAsPPL": {
+      "name": "Configure LSASS to run as a protected process (RunAsPPL)",
+      "category": "Local Policies · Security Options",
+      "description": "Protects LSASS from credential theft, but blocks unsigned LSASS plug-ins. Some third-party SSO/AV agents and smart-card middleware may stop loading until updated/signed.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Control\\Lsa",
+      "value": "RunAsPPL",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "high",
+        "detail": "Protects LSASS from credential theft, but blocks unsigned LSASS plug-ins. Some third-party SSO/AV agents and smart-card middleware may stop loading until updated/signed."
+      },
+      "serviceImpacts": [],
+      "reboot": true
+    },
+    "RestrictRemoteSam": {
+      "name": "Network access: restrict clients allowed to make remote calls to SAM",
+      "category": "Local Policies · Security Options",
+      "description": "Limits remote SAM enumeration to Administrators. Tools that remotely enumerate local accounts as non-admins will be denied.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Control\\Lsa",
+      "value": "RestrictRemoteSAM",
+      "regType": "REG_SZ",
+      "valueKind": "string",
+      "format": "raw",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "Limits remote SAM enumeration to Administrators. Tools that remotely enumerate local accounts as non-admins will be denied."
+      },
+      "serviceImpacts": []
+    },
+    "NtlmMinClientSec": {
+      "name": "Network security: minimum session security for NTLM SSP clients",
+      "category": "Local Policies · Security Options",
+      "description": "Requires NTLMv2 session security and 128-bit encryption for outbound NTLM. Legacy servers that cannot negotiate these will refuse the client.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Control\\Lsa\\MSV1_0",
+      "value": "NTLMMinClientSec",
+      "regType": "REG_DWORD",
+      "valueKind": "int",
+      "format": "raw",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "Requires NTLMv2 session security and 128-bit encryption for outbound NTLM. Legacy servers that cannot negotiate these will refuse the client."
+      },
+      "serviceImpacts": [],
+      "reboot": true
+    },
+    "NtlmMinServerSec": {
+      "name": "Network security: minimum session security for NTLM SSP servers",
+      "category": "Local Policies · Security Options",
+      "description": "Requires NTLMv2 session security and 128-bit encryption for inbound NTLM. Legacy clients will be refused.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Control\\Lsa\\MSV1_0",
+      "value": "NTLMMinServerSec",
+      "regType": "REG_DWORD",
+      "valueKind": "int",
+      "format": "raw",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "Requires NTLMv2 session security and 128-bit encryption for inbound NTLM. Legacy clients will be refused."
+      },
+      "serviceImpacts": [],
+      "reboot": true
+    },
+    "AllowNullSessionFallback": {
+      "name": "Network security: allow LocalSystem NULL session fallback",
+      "category": "Local Policies · Security Options",
+      "description": "Prevents NTLM NULL session fallback for LocalSystem.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Control\\Lsa\\MSV1_0",
+      "value": "allownullsessionfallback",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Prevents NTLM NULL session fallback for LocalSystem."
+      },
+      "serviceImpacts": []
+    },
+    "LocalAccountTokenFilterPolicy": {
+      "name": "Apply UAC token-filtering to local accounts on network logons",
+      "category": "Local Policies · Security Options",
+      "description": "Local admin accounts get a filtered token over the network, blocking remote admin via local accounts (pass-the-hash mitigation). Remote management tools that rely on a local admin account may break.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+      "value": "LocalAccountTokenFilterPolicy",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "Local admin accounts get a filtered token over the network, blocking remote admin via local accounts (pass-the-hash mitigation). Remote management tools that rely on a local admin account may break."
+      },
+      "serviceImpacts": []
+    },
+    "WDigestUseLogonCredential": {
+      "name": "Disable WDigest clear-text credential caching",
+      "category": "Local Policies · Security Options",
+      "description": "Stops WDigest from caching plaintext credentials in memory (mitigates Mimikatz). No impact on modern authentication.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\WDigest",
+      "value": "UseLogonCredential",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "Stops WDigest from caching plaintext credentials in memory (mitigates Mimikatz). No impact on modern authentication."
+      },
+      "serviceImpacts": []
+    },
+    "DontDisplayLastUser": {
+      "name": "Interactive logon: do not display last signed-in user",
+      "category": "Local Policies · Security Options",
+      "description": "The username field is blank at logon. Minor convenience impact on shared kiosks.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+      "value": "DontDisplayLastUserName",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "The username field is blank at logon. Minor convenience impact on shared kiosks."
+      },
+      "serviceImpacts": []
+    },
+    "RequireCtrlAltDel": {
+      "name": "Interactive logon: require CTRL+ALT+DEL",
+      "category": "Local Policies · Security Options",
+      "description": "Forces the secure attention sequence before logon (anti credential-harvesting).",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+      "value": "DisableCAD",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "cad",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Forces the secure attention sequence before logon (anti credential-harvesting)."
+      },
+      "serviceImpacts": []
+    },
+    "SmartCardRemovalBehavior": {
+      "name": "Interactive logon: smart card removal behavior (lock workstation)",
+      "category": "Local Policies · Security Options",
+      "description": "Locks the session when a smart card is removed. No effect where smart cards are not used.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon",
+      "value": "ScRemoveOption",
+      "regType": "REG_SZ",
+      "valueKind": "string",
+      "format": "raw",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Locks the session when a smart card is removed. No effect where smart cards are not used."
+      },
+      "serviceImpacts": []
+    },
+    "UacInstallerDetection": {
+      "name": "UAC: detect application installations and prompt for elevation",
+      "category": "Local Policies · Security Options",
+      "description": "Legacy installers are detected and prompted for elevation.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+      "value": "EnableInstallerDetection",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Legacy installers are detected and prompted for elevation."
+      },
+      "serviceImpacts": []
+    },
+    "UacSecureUiaPaths": {
+      "name": "UAC: only elevate UIAccess applications in secure locations",
+      "category": "Local Policies · Security Options",
+      "description": "UIAccess apps must reside in a secure path (Program Files / System32).",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+      "value": "EnableSecureUIAPaths",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "UIAccess apps must reside in a secure path (Program Files / System32)."
+      },
+      "serviceImpacts": []
+    },
+    "UacUiaDesktopToggle": {
+      "name": "UAC: allow UIAccess applications to prompt without the secure desktop",
+      "category": "Local Policies · Security Options",
+      "description": "Keeps elevation prompts on the secure desktop.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+      "value": "EnableUIADesktopToggle",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Keeps elevation prompts on the secure desktop."
+      },
+      "serviceImpacts": []
+    },
+    "UacAdminApprovalBuiltin": {
+      "name": "UAC: admin approval mode for the built-in Administrator",
+      "category": "Local Policies · Security Options",
+      "description": "The built-in Administrator runs with a filtered token. Automation logging in as the built-in Administrator expecting silent elevation may prompt.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+      "value": "FilterAdministratorToken",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "The built-in Administrator runs with a filtered token. Automation logging in as the built-in Administrator expecting silent elevation may prompt."
+      },
+      "serviceImpacts": []
+    },
+    "UacStandardUserPrompt": {
+      "name": "UAC: behavior of the elevation prompt for standard users (auto-deny)",
+      "category": "Local Policies · Security Options",
+      "description": "Standard users cannot elevate; requests are automatically denied. Apps that expect standard users to elevate on demand will fail.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+      "value": "ConsentPromptBehaviorUser",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "raw",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "Standard users cannot elevate; requests are automatically denied. Apps that expect standard users to elevate on demand will fail."
+      },
+      "serviceImpacts": []
+    },
+    "UacVirtualization": {
+      "name": "UAC: virtualize file and registry write failures to per-user locations",
+      "category": "Local Policies · Security Options",
+      "description": "Legacy apps writing to protected locations are redirected instead of failing.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+      "value": "EnableVirtualization",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Legacy apps writing to protected locations are redirected instead of failing."
+      },
+      "serviceImpacts": []
+    },
+    "UacSecureDesktop": {
+      "name": "UAC: switch to the secure desktop when prompting for elevation",
+      "category": "Local Policies · Security Options",
+      "description": "Elevation prompts appear on the secure desktop.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+      "value": "PromptOnSecureDesktop",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Elevation prompts appear on the secure desktop."
+      },
+      "serviceImpacts": []
+    },
+    "MssDisableIpSourceRouting": {
+      "name": "MSS: (DisableIPSourceRouting) IPv4 source routing protection",
+      "category": "Administrative Templates · MSS (Legacy)",
+      "description": "Highest protection; source-routed IPv4 packets are dropped.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters",
+      "value": "DisableIPSourceRouting",
+      "regType": "REG_DWORD",
+      "valueKind": "int",
+      "format": "raw",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Highest protection; source-routed IPv4 packets are dropped."
+      },
+      "serviceImpacts": []
+    },
+    "MssDisableIpSourceRoutingV6": {
+      "name": "MSS: (DisableIPSourceRouting IPv6) IPv6 source routing protection",
+      "category": "Administrative Templates · MSS (Legacy)",
+      "description": "Highest protection; source-routed IPv6 packets are dropped.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters",
+      "value": "DisableIPSourceRouting",
+      "regType": "REG_DWORD",
+      "valueKind": "int",
+      "format": "raw",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Highest protection; source-routed IPv6 packets are dropped."
+      },
+      "serviceImpacts": []
+    },
+    "MssEnableIcmpRedirect": {
+      "name": "MSS: (EnableICMPRedirect) allow ICMP redirects to override OSPF routes",
+      "category": "Administrative Templates · MSS (Legacy)",
+      "description": "ICMP redirects can no longer override the routing table.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters",
+      "value": "EnableICMPRedirect",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "ICMP redirects can no longer override the routing table."
+      },
+      "serviceImpacts": []
+    },
+    "MssNoNameReleaseOnDemand": {
+      "name": "MSS: (NoNameReleaseOnDemand) ignore NetBIOS name-release requests",
+      "category": "Administrative Templates · MSS (Legacy)",
+      "description": "Protects against NetBIOS name-release denial of service.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Services\\Netbt\\Parameters",
+      "value": "NoNameReleaseOnDemand",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Protects against NetBIOS name-release denial of service."
+      },
+      "serviceImpacts": []
+    },
+    "SafeDllSearchMode": {
+      "name": "MSS: enable Safe DLL search mode",
+      "category": "Administrative Templates · MSS (Legacy)",
+      "description": "System directories are searched before the current directory for DLLs (DLL-planting mitigation).",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Control\\Session Manager",
+      "value": "SafeDllSearchMode",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "System directories are searched before the current directory for DLLs (DLL-planting mitigation)."
+      },
+      "serviceImpacts": []
+    },
+    "SmbServerSignRequire": {
+      "name": "Microsoft network server: digitally sign communications (always)",
+      "category": "Administrative Templates · Network",
+      "description": "Requires SMB signing on the server side. Legacy clients/devices that cannot sign will fail to connect to shares.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters",
+      "value": "RequireSecuritySignature",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "Requires SMB signing on the server side. Legacy clients/devices that cannot sign will fail to connect to shares."
+      },
+      "serviceImpacts": [
+        {
+          "services": [
+            "LanmanServer"
+          ],
+          "risk": "medium",
+          "detail": "The Server service is running; devices that cannot perform SMB signing will lose access to its shares."
+        }
+      ]
+    },
+    "SmbServerSignEnable": {
+      "name": "Microsoft network server: digitally sign communications (if client agrees)",
+      "category": "Administrative Templates · Network",
+      "description": "Enables SMB signing when the client supports it.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters",
+      "value": "EnableSecuritySignature",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Enables SMB signing when the client supports it."
+      },
+      "serviceImpacts": []
+    },
+    "SmbServerForceLogoff": {
+      "name": "Microsoft network server: disconnect clients when logon hours expire",
+      "category": "Administrative Templates · Network",
+      "description": "Clients are disconnected when logon hours expire.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters",
+      "value": "EnableForcedLogOff",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Clients are disconnected when logon hours expire."
+      },
+      "serviceImpacts": []
+    },
+    "SmbServerAutoDisconnect": {
+      "name": "Microsoft network server: idle time before suspending a session (minutes)",
+      "category": "Administrative Templates · Network",
+      "description": "Idle SMB sessions are suspended after 15 minutes.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters",
+      "value": "AutoDisconnect",
+      "regType": "REG_DWORD",
+      "valueKind": "int",
+      "format": "raw",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Idle SMB sessions are suspended after 15 minutes."
+      },
+      "serviceImpacts": []
+    },
+    "SmbServerRestrictNullSess": {
+      "name": "Microsoft network server: restrict null-session access",
+      "category": "Administrative Templates · Network",
+      "description": "Anonymous (null) sessions cannot access shares/pipes not explicitly allowed.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters",
+      "value": "RestrictNullSessAccess",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Anonymous (null) sessions cannot access shares/pipes not explicitly allowed."
+      },
+      "serviceImpacts": []
+    },
+    "SmbClientSignRequire": {
+      "name": "Microsoft network client: digitally sign communications (always)",
+      "category": "Administrative Templates · Network",
+      "description": "Requires SMB signing on the client side. Connections to servers/NAS that cannot sign will fail.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Services\\LanmanWorkstation\\Parameters",
+      "value": "RequireSecuritySignature",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "Requires SMB signing on the client side. Connections to servers/NAS that cannot sign will fail."
+      },
+      "serviceImpacts": [
+        {
+          "services": [
+            "LanmanWorkstation"
+          ],
+          "risk": "medium",
+          "detail": "The Workstation service is running; connecting to file servers/NAS that cannot sign SMB will fail."
+        }
+      ]
+    },
+    "SmbClientSignEnable": {
+      "name": "Microsoft network client: digitally sign communications (if server agrees)",
+      "category": "Administrative Templates · Network",
+      "description": "Enables SMB signing when the server supports it.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Services\\LanmanWorkstation\\Parameters",
+      "value": "EnableSecuritySignature",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Enables SMB signing when the server supports it."
+      },
+      "serviceImpacts": []
+    },
+    "SmbClientPlaintextPassword": {
+      "name": "Microsoft network client: send unencrypted password to third-party SMB servers",
+      "category": "Administrative Templates · Network",
+      "description": "Blocks sending plaintext SMB passwords to non-Microsoft servers.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Services\\LanmanWorkstation\\Parameters",
+      "value": "EnablePlainTextPassword",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Blocks sending plaintext SMB passwords to non-Microsoft servers."
+      },
+      "serviceImpacts": []
+    },
+    "SmbInsecureGuestAuth": {
+      "name": "Enable insecure guest logons (SMB)",
+      "category": "Administrative Templates · Network",
+      "description": "Blocks unauthenticated guest access to SMB shares. Scan-to-folder printers and consumer NAS relying on guest SMB will lose access.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\LanmanWorkstation",
+      "value": "AllowInsecureGuestAuth",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "Blocks unauthenticated guest access to SMB shares. Scan-to-folder printers and consumer NAS relying on guest SMB will lose access."
+      },
+      "serviceImpacts": [
+        {
+          "services": [
+            "LanmanWorkstation",
+            "Spooler"
+          ],
+          "risk": "medium",
+          "detail": "Guest SMB access is in use by devices such as scan-to-folder printers or consumer NAS; those will break."
+        }
+      ]
+    },
+    "RdpNoDriveRedirection": {
+      "name": "Remote Desktop: do not allow drive redirection",
+      "category": "Administrative Templates · Remote Desktop",
+      "description": "Blocks mapping of local drives into RDP sessions.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services",
+      "value": "fDisableCdm",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Blocks mapping of local drives into RDP sessions."
+      },
+      "serviceImpacts": [
+        {
+          "services": [
+            "TermService"
+          ],
+          "risk": "low",
+          "detail": "Remote Desktop is enabled; users relying on drive redirection lose it."
+        }
+      ]
+    },
+    "RdpAlwaysPrompt": {
+      "name": "Remote Desktop: always prompt for password upon connection",
+      "category": "Administrative Templates · Remote Desktop",
+      "description": "RDP always prompts for a password even if the client supplied one.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services",
+      "value": "fPromptForPassword",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "RDP always prompts for a password even if the client supplied one."
+      },
+      "serviceImpacts": [
+        {
+          "services": [
+            "TermService"
+          ],
+          "risk": "low",
+          "detail": "Remote Desktop is enabled; saved-credential RDP logons will now prompt."
+        }
+      ]
+    },
+    "RdpSecureRpc": {
+      "name": "Remote Desktop: require secure RPC communication",
+      "category": "Administrative Templates · Remote Desktop",
+      "description": "Requires encrypted/authenticated RPC for RDP.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services",
+      "value": "fEncryptRPCTraffic",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Requires encrypted/authenticated RPC for RDP."
+      },
+      "serviceImpacts": [
+        {
+          "services": [
+            "TermService"
+          ],
+          "risk": "low",
+          "detail": "Remote Desktop is enabled; clients that cannot do secure RPC are refused."
+        }
+      ]
+    },
+    "RdpDisablePasswordSaving": {
+      "name": "Remote Desktop: do not allow passwords to be saved",
+      "category": "Administrative Templates · Remote Desktop",
+      "description": "The RDP client cannot save passwords.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services",
+      "value": "DisablePasswordSaving",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "The RDP client cannot save passwords."
+      },
+      "serviceImpacts": []
+    },
+    "RemoteAssistanceSolicited": {
+      "name": "Configure solicited Remote Assistance (disabled)",
+      "category": "Administrative Templates · Remote Desktop",
+      "description": "Disables solicited Remote Assistance.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services",
+      "value": "fAllowToGetHelp",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Disables solicited Remote Assistance."
+      },
+      "serviceImpacts": []
+    },
+    "WinRmClientBasic": {
+      "name": "WinRM client: do not allow Basic authentication",
+      "category": "Administrative Templates · Windows Remote Management",
+      "description": "Blocks Basic auth for the WinRM client. Remote management scripts using Basic auth will break.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WinRM\\Client",
+      "value": "AllowBasic",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "Blocks Basic auth for the WinRM client. Remote management scripts using Basic auth will break."
+      },
+      "serviceImpacts": [
+        {
+          "services": [
+            "WinRM"
+          ],
+          "risk": "medium",
+          "detail": "WinRM is running; Basic-auth remote management will stop working."
+        }
+      ]
+    },
+    "WinRmClientUnencrypted": {
+      "name": "WinRM client: do not allow unencrypted traffic",
+      "category": "Administrative Templates · Windows Remote Management",
+      "description": "Requires encrypted WinRM client traffic.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WinRM\\Client",
+      "value": "AllowUnencryptedTraffic",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "Requires encrypted WinRM client traffic."
+      },
+      "serviceImpacts": [
+        {
+          "services": [
+            "WinRM"
+          ],
+          "risk": "medium",
+          "detail": "WinRM is running; unencrypted client sessions will be refused."
+        }
+      ]
+    },
+    "WinRmClientDigest": {
+      "name": "WinRM client: do not allow Digest authentication",
+      "category": "Administrative Templates · Windows Remote Management",
+      "description": "Blocks Digest auth for the WinRM client.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WinRM\\Client",
+      "value": "AllowDigest",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Blocks Digest auth for the WinRM client."
+      },
+      "serviceImpacts": []
+    },
+    "WinRmServiceBasic": {
+      "name": "WinRM service: do not allow Basic authentication",
+      "category": "Administrative Templates · Windows Remote Management",
+      "description": "Blocks Basic auth for the WinRM service. Inbound management using Basic auth will break.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WinRM\\Service",
+      "value": "AllowBasic",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "Blocks Basic auth for the WinRM service. Inbound management using Basic auth will break."
+      },
+      "serviceImpacts": [
+        {
+          "services": [
+            "WinRM"
+          ],
+          "risk": "medium",
+          "detail": "WinRM is running; inbound Basic-auth management will stop working."
+        }
+      ]
+    },
+    "WinRmServiceUnencrypted": {
+      "name": "WinRM service: do not allow unencrypted traffic",
+      "category": "Administrative Templates · Windows Remote Management",
+      "description": "Requires encrypted WinRM service traffic.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WinRM\\Service",
+      "value": "AllowUnencryptedTraffic",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "Requires encrypted WinRM service traffic."
+      },
+      "serviceImpacts": [
+        {
+          "services": [
+            "WinRM"
+          ],
+          "risk": "medium",
+          "detail": "WinRM is running; unencrypted inbound sessions will be refused."
+        }
+      ]
+    },
+    "WinRmServiceRunAs": {
+      "name": "WinRM service: disable RunAs credential storage",
+      "category": "Administrative Templates · Windows Remote Management",
+      "description": "Prevents storing RunAs credentials in the WinRM service.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WinRM\\Service",
+      "value": "DisableRunAs",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Prevents storing RunAs credentials in the WinRM service."
+      },
+      "serviceImpacts": []
+    },
+    "InstallerAlwaysElevated": {
+      "name": "Windows Installer: always install with elevated privileges (disabled)",
+      "category": "Administrative Templates · Windows Installer",
+      "description": "Prevents standard users from installing MSIs as SYSTEM (a well-known privilege-escalation path). If a workflow relied on it, packages must be deployed via a management tool instead.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Installer",
+      "value": "AlwaysInstallElevated",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "Prevents standard users from installing MSIs as SYSTEM (a well-known privilege-escalation path). If a workflow relied on it, packages must be deployed via a management tool instead."
+      },
+      "serviceImpacts": []
+    },
+    "InstallerUserControl": {
+      "name": "Windows Installer: allow user control over installs (disabled)",
+      "category": "Administrative Templates · Windows Installer",
+      "description": "Prevents users from changing protected install options.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Installer",
+      "value": "EnableUserControl",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Prevents users from changing protected install options."
+      },
+      "serviceImpacts": []
+    },
+    "ExplorerNoAutorun": {
+      "name": "Turn off AutoRun commands",
+      "category": "Administrative Templates · AutoPlay Policies",
+      "description": "Disables the AutoRun command from executing on any drive.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",
+      "value": "NoAutorun",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Disables the AutoRun command from executing on any drive."
+      },
+      "serviceImpacts": []
+    },
+    "ExplorerDEP": {
+      "name": "Turn off Data Execution Prevention for Explorer (must be off)",
+      "category": "Administrative Templates · AutoPlay Policies",
+      "description": "Keeps DEP enabled for Explorer.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",
+      "value": "NoDataExecutionPrevention",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Keeps DEP enabled for Explorer."
+      },
+      "serviceImpacts": []
+    },
+    "ExplorerHeapTermination": {
+      "name": "Turn off heap termination on corruption (must be off)",
+      "category": "Administrative Templates · AutoPlay Policies",
+      "description": "Keeps heap-corruption termination enabled for Explorer.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",
+      "value": "NoHeapTerminationOnCorruption",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Keeps heap-corruption termination enabled for Explorer."
+      },
+      "serviceImpacts": []
+    },
+    "ExplorerShellProtocol": {
+      "name": "Use the protected-mode shell protocol (PreXPSP2ShellProtocolBehavior off)",
+      "category": "Administrative Templates · AutoPlay Policies",
+      "description": "Keeps the shell protocol in protected mode.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",
+      "value": "PreXPSP2ShellProtocolBehavior",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Keeps the shell protocol in protected mode."
+      },
+      "serviceImpacts": []
+    },
+    "SmartScreenEnable": {
+      "name": "Configure Windows Defender SmartScreen",
+      "category": "Administrative Templates · Windows Defender SmartScreen",
+      "description": "Turns on SmartScreen app/file reputation checks.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\System",
+      "value": "EnableSmartScreen",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Turns on SmartScreen app/file reputation checks."
+      },
+      "serviceImpacts": []
+    },
+    "SmartScreenLevel": {
+      "name": "Windows Defender SmartScreen level (Block)",
+      "category": "Administrative Templates · Windows Defender SmartScreen",
+      "description": "Sets SmartScreen to warn and block, not just warn.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\System",
+      "value": "ShellSmartScreenLevel",
+      "regType": "REG_SZ",
+      "valueKind": "string",
+      "format": "raw",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Sets SmartScreen to warn and block, not just warn."
+      },
+      "serviceImpacts": []
+    },
+    "PsTranscription": {
+      "name": "Turn on PowerShell transcription",
+      "category": "Administrative Templates · Windows PowerShell",
+      "description": "Records a transcript of all PowerShell activity. Increases log volume; set an output directory ACL.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\Transcription",
+      "value": "EnableTranscription",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Records a transcript of all PowerShell activity. Increases log volume; set an output directory ACL."
+      },
+      "serviceImpacts": []
+    },
+    "AllowTelemetry": {
+      "name": "Allow Diagnostic Data (Telemetry) — Security level",
+      "category": "Administrative Templates · Data Collection",
+      "description": "Limits Windows diagnostic data to the Security level.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection",
+      "value": "AllowTelemetry",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "raw",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Limits Windows diagnostic data to the Security level."
+      },
+      "serviceImpacts": []
+    },
+    "NoLockScreenCamera": {
+      "name": "Prevent enabling lock-screen camera",
+      "category": "Administrative Templates · Control Panel (Personalization)",
+      "description": "Disables camera access from the lock screen.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Personalization",
+      "value": "NoLockScreenCamera",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Disables camera access from the lock screen."
+      },
+      "serviceImpacts": []
+    },
+    "NoLockScreenSlideshow": {
+      "name": "Prevent enabling lock-screen slide show",
+      "category": "Administrative Templates · Control Panel (Personalization)",
+      "description": "Disables the lock-screen slide show.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Personalization",
+      "value": "NoLockScreenSlideshow",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Disables the lock-screen slide show."
+      },
+      "serviceImpacts": []
+    },
+    "CredUiNoPasswordReveal": {
+      "name": "Do not display the password reveal button",
+      "category": "Administrative Templates · Credential UI",
+      "description": "Removes the \"reveal password\" eye button from credential dialogs.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\CredUI",
+      "value": "DisablePasswordReveal",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Removes the \"reveal password\" eye button from credential dialogs."
+      },
+      "serviceImpacts": []
+    },
+    "CredUiNoAdminEnumeration": {
+      "name": "Enumerate administrator accounts on elevation (disabled)",
+      "category": "Administrative Templates · Credential UI",
+      "description": "Does not list admin accounts when a standard user elevates.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\CredUI",
+      "value": "EnumerateAdministrators",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Does not list admin accounts when a standard user elevates."
+      },
+      "serviceImpacts": []
+    },
+    "EventLogAppSize": {
+      "name": "Application log: maximum size (KB)",
+      "category": "Administrative Templates · Event Log Service",
+      "description": "Ensures the Application log retains enough history (min 32,768 KB).",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\EventLog\\Application",
+      "value": "MaxSize",
+      "regType": "REG_DWORD",
+      "valueKind": "int",
+      "format": "raw",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Ensures the Application log retains enough history (min 32,768 KB)."
+      },
+      "serviceImpacts": []
+    },
+    "EventLogSecSize": {
+      "name": "Security log: maximum size (KB)",
+      "category": "Administrative Templates · Event Log Service",
+      "description": "Ensures the Security log retains enough history (min 1,024,000 KB).",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\EventLog\\Security",
+      "value": "MaxSize",
+      "regType": "REG_DWORD",
+      "valueKind": "int",
+      "format": "raw",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Ensures the Security log retains enough history (min 1,024,000 KB)."
+      },
+      "serviceImpacts": []
+    },
+    "EventLogSysSize": {
+      "name": "System log: maximum size (KB)",
+      "category": "Administrative Templates · Event Log Service",
+      "description": "Ensures the System log retains enough history (min 32,768 KB).",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\EventLog\\System",
+      "value": "MaxSize",
+      "regType": "REG_DWORD",
+      "valueKind": "int",
+      "format": "raw",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Ensures the System log retains enough history (min 32,768 KB)."
       },
       "serviceImpacts": []
     }

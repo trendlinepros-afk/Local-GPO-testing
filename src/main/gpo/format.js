@@ -66,6 +66,8 @@ function formatValue(raw, setting) {
       return s === '0' ? 'Until an admin unlocks' : `${s} minute(s)`;
     case 'seconds':
       return s === '0' ? 'Disabled (no auto-lock)' : `${s} second(s)`;
+    case 'cad':
+      return s === '0' ? 'CTRL+ALT+DEL required' : 'Not required';
     case 'audit':
       return AUDIT[s] || `Value ${s}`;
     case 'lmcompat':
