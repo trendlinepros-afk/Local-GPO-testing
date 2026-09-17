@@ -1,0 +1,57 @@
+name: Build & Release
+
+# Publishes a Windows installer as a GitHub Release so the in-app
+# "Check for updates" button (electron-updater) can find and install it.
+#
+# Trigger: every push to main (bump the version in package.json to ship an
+# update), a manual run, or a v* tag.
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - 'v*'
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - '.github/workflows/ci.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate data files
+        run: npm run lint:json
+
+      - name: Read version
+        id: pkg
+        shell: bash
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Build and publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run release
+
+      - name: Ensure release is published (not draft)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          gh release edit "v${{ steps.pkg.outputs.version }}" --draft=false --latest || \
+          echo "Could not toggle draft flag (release may already be published)."

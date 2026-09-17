@@ -1,0 +1,37 @@
+name: CI
+
+# Lightweight checks for branches and pull requests: validate the data files
+# and confirm every source file parses. The full installer build lives in
+# release.yml (Windows only).
+
+on:
+  push:
+    branches-ignore: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate data files
+        run: npm run lint:json
+
+      - name: Syntax-check sources
+        run: |
+          for f in $(find src scripts -name '*.js'); do
+            node --check "$f" || exit 1
+          done
+          echo "All source files parsed OK."

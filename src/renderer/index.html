@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Local GPO Compliance Tester</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-mark">GPO</div>
+        <div class="brand-text">
+          <h1>Local GPO Compliance Tester</h1>
+          <p>Preview, test, apply and revert what a compliance baseline would do to Local Group Policy.</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div id="env-badges" class="env-badges"></div>
+        <button id="btn-check-updates" class="btn btn-ghost" type="button">
+          <span class="btn-icon">⟳</span> Check for updates
+        </button>
+        <span id="app-version" class="app-version"></span>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <!-- Step 1: choose a standard -->
+      <section class="panel" id="section-standards">
+        <div class="panel-head">
+          <h2><span class="step-num">1</span> Choose a compliance standard</h2>
+        </div>
+        <div id="standards-grid" class="standards-grid">
+          <div class="loading">Loading standards…</div>
+        </div>
+      </section>
+
+      <!-- Selected standard detail + primary actions -->
+      <section class="panel hidden" id="section-detail">
+        <div class="detail-head">
+          <div>
+            <h2 id="detail-name">—</h2>
+            <p id="detail-desc" class="muted"></p>
+            <a id="detail-ref" class="ref-link" href="#" target="_blank" rel="noopener">Reference ↗</a>
+          </div>
+          <div class="detail-actions">
+            <button id="btn-scan" class="btn btn-primary" type="button">
+              <span class="btn-icon">🔍</span> Scan for Potential Issues
+            </button>
+            <button id="btn-revert" class="btn btn-warn" type="button">
+              <span class="btn-icon">↩</span> Revert Changes
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 2: scan results -->
+      <section class="panel hidden" id="section-scan">
+        <div class="panel-head">
+          <h2><span class="step-num">2</span> Predicted impact</h2>
+          <button class="btn btn-small btn-ghost" id="btn-rescan" type="button">Re-scan</button>
+        </div>
+        <div id="scan-summary" class="scan-summary"></div>
+        <div id="scan-issues" class="scan-issues"></div>
+      </section>
+
+      <!-- Step 3: comparison + apply -->
+      <section class="panel hidden" id="section-compare">
+        <div class="panel-head">
+          <h2><span class="step-num">3</span> Current settings vs. baseline</h2>
+          <div class="compare-tools">
+            <label class="chk-inline">
+              <input type="checkbox" id="filter-diff-only" checked />
+              Show only differences
+            </label>
+            <button class="btn btn-small btn-ghost" id="btn-select-diff" type="button">Select all differing</button>
+            <button class="btn btn-small btn-ghost" id="btn-clear-sel" type="button">Clear</button>
+            <button class="btn btn-small btn-primary" id="btn-apply" type="button">
+              Apply Selected (<span id="sel-count">0</span>)
+            </button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="cmp-table">
+            <thead>
+              <tr>
+                <th class="col-chk"><input type="checkbox" id="chk-all" /></th>
+                <th>Setting</th>
+                <th>Current value</th>
+                <th></th>
+                <th>Baseline would set</th>
+                <th>Potential impact</th>
+              </tr>
+            </thead>
+            <tbody id="cmp-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- Generic modal shell -->
+    <div class="modal-overlay hidden" id="modal-overlay">
+      <div class="modal" role="dialog" aria-modal="true">
+        <div class="modal-head">
+          <h3 id="modal-title">Title</h3>
+          <button class="modal-close" id="modal-close" type="button" aria-label="Close">×</button>
+        </div>
+        <div class="modal-body" id="modal-body"></div>
+        <div class="modal-foot" id="modal-foot"></div>
+      </div>
+    </div>
+
+    <div id="toast-stack" class="toast-stack"></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,596 @@
+{
+  "_comment": "Catalog of Local Group Policy / security settings this tool can read, compare and apply. 'type' selects the mechanism: 'secedit' settings live in the Local Security Policy database (read via `secedit /export`, written via `secedit /configure`); 'registry' settings are Administrative-Template / security-option style values written directly under the policy or system hives. Values are stored/compared as strings. 'serviceImpacts' rules power the pre-apply scan: if a running service/process matches while the setting differs from the baseline, it is flagged.",
+  "settings": {
+    "PasswordMinLength": {
+      "name": "Minimum password length",
+      "category": "Account Policies · Password Policy",
+      "description": "Fewest characters a local account password may contain.",
+      "type": "secedit",
+      "section": "System Access",
+      "key": "MinimumPasswordLength",
+      "valueKind": "int",
+      "unit": "characters",
+      "format": "count",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Accounts with shorter passwords must change them at the next password change. Service accounts with hard-coded short passwords may fail to authenticate until updated."
+      },
+      "serviceImpacts": []
+    },
+    "PasswordComplexity": {
+      "name": "Password must meet complexity requirements",
+      "category": "Account Policies · Password Policy",
+      "description": "Requires a mix of character classes and forbids the account name in the password.",
+      "type": "secedit",
+      "section": "System Access",
+      "key": "PasswordComplexity",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Simple or dictionary passwords will be rejected on next change. Automated provisioning that sets weak passwords will fail."
+      },
+      "serviceImpacts": []
+    },
+    "MaxPasswordAge": {
+      "name": "Maximum password age",
+      "category": "Account Policies · Password Policy",
+      "description": "Days before a password must be changed (0 = never expires).",
+      "type": "secedit",
+      "section": "System Access",
+      "key": "MaximumPasswordAge",
+      "valueKind": "int",
+      "unit": "days",
+      "format": "maxage",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "Service and application accounts with non-expiring passwords will begin expiring. This is the single most common cause of scheduled tasks and services failing after a policy roll-out — set those accounts to 'password never expires' first."
+      },
+      "serviceImpacts": [
+        {
+          "services": ["MSSQLSERVER", "MSSQL$*", "SQLSERVERAGENT", "W3SVC", "Spooler", "*Backup*", "veeam*", "Tomcat*", "Apache*"],
+          "risk": "high",
+          "detail": "Long-running services often authenticate with a dedicated account. Enforcing password expiry can lock them out on the expiry date."
+        }
+      ]
+    },
+    "MinPasswordAge": {
+      "name": "Minimum password age",
+      "category": "Account Policies · Password Policy",
+      "description": "Days a password must be kept before it can be changed again.",
+      "type": "secedit",
+      "section": "System Access",
+      "key": "MinimumPasswordAge",
+      "valueKind": "int",
+      "unit": "days",
+      "format": "days",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Prevents users from cycling passwords to defeat history. No service impact expected."
+      },
+      "serviceImpacts": []
+    },
+    "PasswordHistorySize": {
+      "name": "Enforce password history",
+      "category": "Account Policies · Password Policy",
+      "description": "Number of previous passwords remembered and blocked from reuse.",
+      "type": "secedit",
+      "section": "System Access",
+      "key": "PasswordHistorySize",
+      "valueKind": "int",
+      "unit": "passwords",
+      "format": "count",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Users cannot reuse recent passwords. No service impact expected."
+      },
+      "serviceImpacts": []
+    },
+    "ClearTextPassword": {
+      "name": "Store passwords using reversible encryption",
+      "category": "Account Policies · Password Policy",
+      "description": "Reversible encryption stores a recoverable form of the password and should be disabled.",
+      "type": "secedit",
+      "section": "System Access",
+      "key": "ClearTextPassword",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "A few legacy authentication methods (e.g. CHAP for some RAS/802.1X configurations, older IIS Digest auth) require reversible encryption. Those will stop working when it is disabled."
+      },
+      "serviceImpacts": [
+        {
+          "services": ["RemoteAccess", "Netlogon", "IAS", "W3SVC"],
+          "risk": "medium",
+          "detail": "RAS/NPS or IIS Digest authentication may rely on reversible-encryption passwords."
+        }
+      ]
+    },
+    "LockoutThreshold": {
+      "name": "Account lockout threshold",
+      "category": "Account Policies · Account Lockout Policy",
+      "description": "Failed logon attempts allowed before the account is locked (0 = never lock).",
+      "type": "secedit",
+      "section": "System Access",
+      "key": "LockoutBadCount",
+      "valueKind": "int",
+      "unit": "attempts",
+      "format": "count",
+      "generalImpact": {
+        "risk": "high",
+        "detail": "Applications that retry stale/cached credentials (mapped drives, Outlook, mobile mail, service accounts) can trip the lockout repeatedly. Audit for bad-credential retries before enforcing a low threshold."
+      },
+      "serviceImpacts": [
+        {
+          "services": ["MSExchange*", "W3SVC", "MSSQLSERVER", "*sync*", "*mail*"],
+          "risk": "high",
+          "detail": "Services that repeatedly present cached credentials can lock out the account under a low threshold."
+        }
+      ]
+    },
+    "LockoutDuration": {
+      "name": "Account lockout duration",
+      "category": "Account Policies · Account Lockout Policy",
+      "description": "Minutes a locked account stays locked (0 = until an administrator unlocks it).",
+      "type": "secedit",
+      "section": "System Access",
+      "key": "LockoutDuration",
+      "valueKind": "int",
+      "unit": "minutes",
+      "format": "lockoutduration",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Longer durations increase help-desk load; no direct service impact."
+      },
+      "serviceImpacts": []
+    },
+    "ResetLockoutCounter": {
+      "name": "Reset account lockout counter after",
+      "category": "Account Policies · Account Lockout Policy",
+      "description": "Minutes after a bad attempt before the failed-attempt counter resets.",
+      "type": "secedit",
+      "section": "System Access",
+      "key": "ResetLockoutCount",
+      "valueKind": "int",
+      "unit": "minutes",
+      "format": "minutes",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "No direct service impact."
+      },
+      "serviceImpacts": []
+    },
+    "GuestAccountDisabled": {
+      "name": "Disable the built-in Guest account",
+      "category": "Local Policies · Security Options",
+      "description": "The Guest account should be disabled on all systems.",
+      "type": "secedit",
+      "section": "System Access",
+      "key": "EnableGuestAccount",
+      "valueKind": "int",
+      "format": "guestaccount",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Anonymous/guest file share access will stop working. Kiosk or shared-appliance setups that rely on Guest will need a real account."
+      },
+      "serviceImpacts": [
+        {
+          "services": ["LanmanServer"],
+          "risk": "medium",
+          "detail": "Shares that permit Guest access will refuse anonymous connections once Guest is disabled."
+        }
+      ]
+    },
+    "LimitBlankPasswordUse": {
+      "name": "Limit local account blank-password use to console",
+      "category": "Local Policies · Security Options",
+      "description": "Blocks network logon for local accounts that have blank passwords.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Control\\Lsa",
+      "value": "LimitBlankPasswordUse",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Local accounts with blank passwords can no longer be used over the network (recommended). Lab devices relying on blank-password network logon will break."
+      },
+      "serviceImpacts": []
+    },
+    "NoLMHash": {
+      "name": "Do not store LAN Manager hash on next password change",
+      "category": "Local Policies · Security Options",
+      "description": "Stops Windows from storing the weak LM hash of passwords.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Control\\Lsa",
+      "value": "NoLMHash",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "Windows 95/98/ME and some very old appliances that only speak LM authentication will no longer be able to authenticate."
+      },
+      "serviceImpacts": [
+        {
+          "services": ["LanmanServer", "RemoteAccess"],
+          "risk": "medium",
+          "detail": "Legacy clients that only support LM hashes will fail against file sharing or RAS."
+        }
+      ]
+    },
+    "LmCompatibilityLevel": {
+      "name": "LAN Manager authentication level",
+      "category": "Local Policies · Security Options",
+      "description": "Controls which challenge/response protocols (LM, NTLM, NTLMv2) are used. 5 = send NTLMv2 only, refuse LM & NTLM.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Control\\Lsa",
+      "value": "LmCompatibilityLevel",
+      "regType": "REG_DWORD",
+      "valueKind": "int",
+      "format": "lmcompat",
+      "generalImpact": {
+        "risk": "high",
+        "detail": "Refusing LM/NTLMv1 (level 5) breaks authentication to and from devices that only support the older protocols: old NAS units, multifunction printers with scan-to-folder, and legacy line-of-business apps."
+      },
+      "serviceImpacts": [
+        {
+          "services": ["LanmanServer", "LanmanWorkstation", "Spooler"],
+          "risk": "high",
+          "detail": "File sharing and scan-to-folder printing with legacy devices may fail once only NTLMv2 is accepted."
+        }
+      ]
+    },
+    "RestrictAnonymousSAM": {
+      "name": "Do not allow anonymous enumeration of SAM accounts",
+      "category": "Local Policies · Security Options",
+      "description": "Blocks anonymous listing of local account names.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Control\\Lsa",
+      "value": "RestrictAnonymousSAM",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Some legacy trust or migration tools that enumerate accounts anonymously may lose visibility. Rare in practice."
+      },
+      "serviceImpacts": []
+    },
+    "InactivityTimeoutSecs": {
+      "name": "Interactive logon: machine inactivity limit",
+      "category": "Local Policies · Security Options",
+      "description": "Seconds of inactivity before the session is locked (0 = disabled).",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+      "value": "InactivityTimeoutSecs",
+      "regType": "REG_DWORD",
+      "valueKind": "int",
+      "unit": "seconds",
+      "format": "seconds",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "Kiosks, dashboards, digital-signage PCs and monitoring stations that must stay unlocked will lock automatically. Exclude those machines or raise the limit for them."
+      },
+      "serviceImpacts": []
+    },
+    "UacEnableLUA": {
+      "name": "User Account Control: run all administrators in Admin Approval Mode",
+      "category": "Local Policies · Security Options",
+      "description": "Master switch for UAC. Should be enabled.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+      "value": "EnableLUA",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "high",
+        "detail": "Enabling UAC where it was off requires a reboot and can break legacy apps that write to protected locations without virtualization. Turning it off entirely is a security regression and is never recommended by any of these standards."
+      },
+      "serviceImpacts": [
+        {
+          "services": ["*"],
+          "processes": ["*"],
+          "risk": "medium",
+          "detail": "Legacy line-of-business apps that assume they run elevated may need shims or a manifest once UAC is enforced."
+        }
+      ]
+    },
+    "UacAdminPrompt": {
+      "name": "UAC: behavior of the elevation prompt for administrators",
+      "category": "Local Policies · Security Options",
+      "description": "2 = prompt for consent on the secure desktop (recommended baseline).",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+      "value": "ConsentPromptBehaviorAdmin",
+      "regType": "REG_DWORD",
+      "valueKind": "int",
+      "format": "uacprompt",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Silent-elevation deployment scripts that assumed no prompt may now prompt. Schedule those to run as SYSTEM."
+      },
+      "serviceImpacts": []
+    },
+    "SmbV1Server": {
+      "name": "Disable SMBv1 server protocol",
+      "category": "Administrative Templates · Network",
+      "description": "SMBv1 is obsolete and insecure; the server component should be disabled.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters",
+      "value": "SMB1",
+      "regType": "REG_DWORD",
+      "valueKind": "int",
+      "format": "smb1",
+      "generalImpact": {
+        "risk": "high",
+        "detail": "Devices that only speak SMBv1 lose access to shares on this machine: Windows XP/2003, some NAS/multifunction printers, and older backup appliances. Requires a reboot to fully unload."
+      },
+      "serviceImpacts": [
+        {
+          "services": ["LanmanServer"],
+          "risk": "high",
+          "detail": "The Server service is running and may be sharing files to legacy SMBv1-only clients."
+        }
+      ]
+    },
+    "RdpRequireNla": {
+      "name": "Require Network Level Authentication for RDP",
+      "category": "Administrative Templates · Remote Desktop",
+      "description": "Requires the client to authenticate before a session is created.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services",
+      "value": "UserAuthentication",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "RDP clients that do not support CredSSP/NLA (very old thin clients, some non-Windows RDP apps) will be unable to connect."
+      },
+      "serviceImpacts": [
+        {
+          "services": ["TermService"],
+          "risk": "medium",
+          "detail": "Remote Desktop is enabled; legacy RDP clients without NLA support will be refused."
+        }
+      ]
+    },
+    "RdpMinEncryption": {
+      "name": "Set RDP client connection encryption level to High",
+      "category": "Administrative Templates · Remote Desktop",
+      "description": "3 = High (128-bit both directions).",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services",
+      "value": "MinEncryptionLevel",
+      "regType": "REG_DWORD",
+      "valueKind": "int",
+      "format": "rdpenc",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Extremely old RDP clients that cannot do 128-bit encryption will be refused. Rare today."
+      },
+      "serviceImpacts": [
+        {
+          "services": ["TermService"],
+          "risk": "low",
+          "detail": "Remote Desktop is enabled; only very old clients would be affected."
+        }
+      ]
+    },
+    "FirewallDomainEnable": {
+      "name": "Windows Firewall: Domain profile enabled",
+      "category": "Administrative Templates · Windows Firewall",
+      "description": "The host firewall must be on for the Domain profile.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\WindowsFirewall\\DomainProfile",
+      "value": "EnableFirewall",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "Turning the firewall on can block inbound ports that line-of-business apps rely on until matching allow rules exist. Confirm required inbound rules before enforcing."
+      },
+      "serviceImpacts": [
+        {
+          "services": ["MSSQLSERVER", "W3SVC", "MSExchange*", "*SQL*"],
+          "risk": "medium",
+          "detail": "Server services listening for inbound connections may be blocked until firewall allow rules are added."
+        }
+      ]
+    },
+    "FirewallStandardEnable": {
+      "name": "Windows Firewall: Private profile enabled",
+      "category": "Administrative Templates · Windows Firewall",
+      "description": "The host firewall must be on for the Private profile.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\WindowsFirewall\\StandardProfile",
+      "value": "EnableFirewall",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "As with the Domain profile, confirm required inbound rules first."
+      },
+      "serviceImpacts": [
+        {
+          "services": ["MSSQLSERVER", "W3SVC", "*SQL*"],
+          "risk": "medium",
+          "detail": "Inbound listeners may be blocked until allow rules exist."
+        }
+      ]
+    },
+    "FirewallPublicEnable": {
+      "name": "Windows Firewall: Public profile enabled",
+      "category": "Administrative Templates · Windows Firewall",
+      "description": "The host firewall must be on for the Public profile.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\WindowsFirewall\\PublicProfile",
+      "value": "EnableFirewall",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Public networks should always have the firewall on. Minimal expected impact."
+      },
+      "serviceImpacts": []
+    },
+    "DisableAutoRun": {
+      "name": "Turn off AutoPlay / AutoRun on all drives",
+      "category": "Administrative Templates · AutoPlay Policies",
+      "description": "255 = disable AutoRun on every drive type.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",
+      "value": "NoDriveTypeAutoRun",
+      "regType": "REG_DWORD",
+      "valueKind": "int",
+      "format": "raw",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Kiosks or media appliances that auto-launch from inserted media will no longer do so."
+      },
+      "serviceImpacts": []
+    },
+    "PsScriptBlockLogging": {
+      "name": "Enable PowerShell Script Block Logging",
+      "category": "Administrative Templates · Windows PowerShell",
+      "description": "Logs the content of PowerShell script blocks for audit.",
+      "type": "registry",
+      "hive": "HKLM",
+      "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging",
+      "value": "EnableScriptBlockLogging",
+      "regType": "REG_DWORD",
+      "valueKind": "bool",
+      "format": "enabledisable",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Event log volume increases. Heavy PowerShell automation can generate a large number of 4104 events."
+      },
+      "serviceImpacts": []
+    },
+    "AuditLogon": {
+      "name": "Audit account logon / logoff events",
+      "category": "Local Policies · Audit Policy",
+      "description": "0=None, 1=Success, 2=Failure, 3=Success+Failure.",
+      "type": "secedit",
+      "section": "Event Audit",
+      "key": "AuditLogonEvents",
+      "valueKind": "int",
+      "format": "audit",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Security event log volume increases. Ensure the Security log is large enough or forwarded."
+      },
+      "serviceImpacts": []
+    },
+    "AuditAccountLogon": {
+      "name": "Audit credential validation (account logon)",
+      "category": "Local Policies · Audit Policy",
+      "description": "0=None, 1=Success, 2=Failure, 3=Success+Failure.",
+      "type": "secedit",
+      "section": "Event Audit",
+      "key": "AuditAccountLogon",
+      "valueKind": "int",
+      "format": "audit",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Security event log volume increases."
+      },
+      "serviceImpacts": []
+    },
+    "AuditAccountManage": {
+      "name": "Audit account management",
+      "category": "Local Policies · Audit Policy",
+      "description": "0=None, 1=Success, 2=Failure, 3=Success+Failure.",
+      "type": "secedit",
+      "section": "Event Audit",
+      "key": "AuditAccountManage",
+      "valueKind": "int",
+      "format": "audit",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Records account creation/changes. Minimal volume."
+      },
+      "serviceImpacts": []
+    },
+    "AuditPolicyChange": {
+      "name": "Audit policy change",
+      "category": "Local Policies · Audit Policy",
+      "description": "0=None, 1=Success, 2=Failure, 3=Success+Failure.",
+      "type": "secedit",
+      "section": "Event Audit",
+      "key": "AuditPolicyChange",
+      "valueKind": "int",
+      "format": "audit",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Records changes to audit and security policy. Minimal volume."
+      },
+      "serviceImpacts": []
+    },
+    "AuditPrivilegeUse": {
+      "name": "Audit privilege use",
+      "category": "Local Policies · Audit Policy",
+      "description": "0=None, 1=Success, 2=Failure, 3=Success+Failure.",
+      "type": "secedit",
+      "section": "Event Audit",
+      "key": "AuditPrivilegeUse",
+      "valueKind": "int",
+      "format": "audit",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "Success auditing of privilege use is very high volume and can flood the Security log. Many baselines audit failures only."
+      },
+      "serviceImpacts": []
+    },
+    "AuditObjectAccess": {
+      "name": "Audit object access",
+      "category": "Local Policies · Audit Policy",
+      "description": "0=None, 1=Success, 2=Failure, 3=Success+Failure.",
+      "type": "secedit",
+      "section": "Event Audit",
+      "key": "AuditObjectAccess",
+      "valueKind": "int",
+      "format": "audit",
+      "generalImpact": {
+        "risk": "medium",
+        "detail": "Enables auditing of file/registry access where SACLs are set. Can be extremely high volume if broad SACLs exist."
+      },
+      "serviceImpacts": []
+    },
+    "AuditSystemEvents": {
+      "name": "Audit system events",
+      "category": "Local Policies · Audit Policy",
+      "description": "0=None, 1=Success, 2=Failure, 3=Success+Failure.",
+      "type": "secedit",
+      "section": "Event Audit",
+      "key": "AuditSystemEvents",
+      "valueKind": "int",
+      "format": "audit",
+      "generalImpact": {
+        "risk": "low",
+        "detail": "Records system start/stop and security subsystem events. Minimal volume."
+      },
+      "serviceImpacts": []
+    }
+  }
+}

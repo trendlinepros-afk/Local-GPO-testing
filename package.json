@@ -1,0 +1,82 @@
+{
+  "name": "local-gpo-compliance-tester",
+  "version": "1.0.0",
+  "description": "Preview and test how rolling out a compliance standard (NIST, CMMC L2, HIPAA, SOC2) would change your Windows Local Group Policy — scan for what could break, apply with one click, and revert in batches.",
+  "author": {
+    "name": "trendlinepros-afk"
+  },
+  "license": "MIT",
+  "main": "src/main/main.js",
+  "homepage": "https://github.com/trendlinepros-afk/Local-GPO-testing",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/trendlinepros-afk/Local-GPO-testing.git"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dev": "cross-env GPO_SIMULATE=1 electron .",
+    "lint:json": "node scripts/validate-data.js",
+    "dist": "electron-builder --publish never",
+    "release": "electron-builder --publish always"
+  },
+  "build": {
+    "appId": "com.trendlinepros.localgpocompliancetester",
+    "productName": "Local GPO Compliance Tester",
+    "artifactName": "${productName}-Setup-${version}.${ext}",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "trendlinepros-afk",
+        "repo": "Local-GPO-testing",
+        "releaseType": "release"
+      }
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "!**/*.md"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "requestedExecutionLevel": "requireAdministrator"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Utility"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.utilities"
+    }
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.9"
+  }
+}
