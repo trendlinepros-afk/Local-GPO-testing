@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld('api', {
   apply: (standardId, settingIds) => ipcRenderer.invoke('gpo:apply', { standardId, settingIds }),
   getBatches: () => ipcRenderer.invoke('gpo:batches'),
   revert: (options) => ipcRenderer.invoke('gpo:revert', options),
+  exportReport: (standardId) => ipcRenderer.invoke('report:export', standardId),
 
   checkForUpdates: () => ipcRenderer.invoke('updater:check'),
   downloadUpdate: () => ipcRenderer.invoke('updater:download'),

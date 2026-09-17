@@ -85,6 +85,7 @@ async function getComparison(standardId) {
       desired: des,
       desiredDisplay: formatValue(des, r.def),
       differs: cur !== des,
+      reboot: !!r.def.reboot,
       generalImpact: r.def.generalImpact || null
     };
   });
@@ -119,6 +120,7 @@ async function scan(standardId) {
 
   const issues = [];
   const byRisk = { high: 0, medium: 0, low: 0 };
+  const rebootRequired = [];
   let changesCount = 0;
 
   for (const r of resolved) {
@@ -128,6 +130,7 @@ async function scan(standardId) {
     changesCount += 1;
 
     const def = r.def;
+    if (def.reboot) rebootRequired.push(def.name);
     const reasons = [];
     const matchedServices = [];
     const matchedProcesses = [];
@@ -173,6 +176,7 @@ async function scan(standardId) {
       name: def.name,
       category: def.category,
       risk,
+      reboot: !!def.reboot,
       currentDisplay: formatValue(cur, def),
       desiredDisplay: formatValue(des, def),
       matchedServices,
@@ -193,6 +197,7 @@ async function scan(standardId) {
     changesCount,
     issues,
     byRisk,
+    rebootRequired,
     services,
     processes
   };
@@ -247,6 +252,7 @@ async function apply(standardId, settingIds) {
         newValue: c.value,
         oldDisplay: formatValue(c.oldValue, c.setting),
         newDisplay: formatValue(c.value, c.setting),
+        reboot: !!c.setting.reboot,
         method: res.method,
         ok: res.ok,
         message: res.message,
@@ -257,7 +263,8 @@ async function apply(standardId, settingIds) {
   };
 
   store.addBatch(batch);
-  return { applied: true, batch, gpupdate, results };
+  const rebootRequired = batch.changes.filter((c) => c.ok && c.reboot).map((c) => c.name);
+  return { applied: true, batch, gpupdate, results, rebootRequired };
 }
 
 function getBatches() {
@@ -341,6 +348,101 @@ async function revert(options = {}) {
   };
 }
 
+// ---- Report -----------------------------------------------------------------
+
+function esc(s) {
+  return String(s === null || s === undefined ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+async function buildReport(standardId) {
+  const [comparison, scanResult] = await Promise.all([getComparison(standardId), scan(standardId)]);
+  const std = comparison.standard;
+  const now = new Date();
+  const p = scanResult.platform;
+
+  const riskColor = { high: '#c0392b', medium: '#b7791f', low: '#2f855a' };
+
+  const issueRows = scanResult.issues
+    .map(
+      (i) => `<tr>
+        <td><span class="pill" style="background:${riskColor[i.risk]}">${esc(i.risk.toUpperCase())}</span></td>
+        <td><strong>${esc(i.name)}</strong><div class="muted">${esc(i.category)}</div></td>
+        <td>${esc(i.currentDisplay)} &rarr; <strong>${esc(i.desiredDisplay)}</strong>${i.reboot ? ' <span class="reboot">restart</span>' : ''}</td>
+        <td>${(i.reasons && i.reasons.length ? i.reasons : [i.generalNote]).filter(Boolean).map(esc).join('<br>')}${
+        i.matchedServices && i.matchedServices.length
+          ? '<div class="muted">Detected: ' + i.matchedServices.map((s) => esc(s.displayName)).join(', ') + '</div>'
+          : ''
+      }</td>
+      </tr>`
+    )
+    .join('');
+
+  const cmpRows = comparison.rows
+    .map(
+      (r) => `<tr class="${r.differs ? 'diff' : 'same'}">
+        <td>${r.differs ? '✕' : '✓'}</td>
+        <td><strong>${esc(r.name)}</strong><div class="muted">${esc(r.category)}</div></td>
+        <td>${esc(r.currentDisplay)}</td>
+        <td><strong>${esc(r.desiredDisplay)}</strong>${r.reboot ? ' <span class="reboot">restart</span>' : ''}</td>
+      </tr>`
+    )
+    .join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>${esc(std.shortName)} compliance report</title>
+<style>
+  body{font-family:Segoe UI,system-ui,Arial,sans-serif;margin:32px;color:#1a202c;background:#fff}
+  h1{margin:0 0 4px}h2{margin-top:32px;border-bottom:2px solid #e2e8f0;padding-bottom:6px}
+  .muted{color:#718096;font-size:12px}
+  .meta{color:#4a5568;font-size:13px;margin-bottom:16px}
+  table{border-collapse:collapse;width:100%;font-size:13px;margin-top:8px}
+  th,td{border:1px solid #e2e8f0;padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#f7fafc;text-transform:uppercase;font-size:11px;letter-spacing:.4px;color:#4a5568}
+  .pill{color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px}
+  .reboot{color:#b7791f;font-size:10px;border:1px solid #b7791f;border-radius:4px;padding:0 4px}
+  .cards{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}
+  .card{border:1px solid #e2e8f0;border-radius:8px;padding:10px 16px;min-width:110px}
+  .card .n{font-size:22px;font-weight:800}.card .l{font-size:11px;color:#718096;text-transform:uppercase}
+  tr.diff td:first-child{color:#c0392b;font-weight:700}tr.same td:first-child{color:#2f855a;font-weight:700}
+  .note{background:#fffaf0;border:1px solid #f6e05e;border-radius:8px;padding:10px 12px;margin-top:12px;font-size:13px}
+</style></head><body>
+<h1>${esc(std.name)}</h1>
+<div class="meta">Local GPO Compliance Report &middot; Generated ${esc(now.toLocaleString())} &middot;
+  Host: ${esc(p.hostname)} (${esc(p.platform)}${p.simulation ? ', simulation' : ''})</div>
+<p>${esc(std.description)}</p>
+
+<div class="cards">
+  <div class="card"><div class="n">${comparison.summary.differing}</div><div class="l">Would change</div></div>
+  <div class="card"><div class="n">${comparison.summary.compliant}</div><div class="l">Already compliant</div></div>
+  <div class="card"><div class="n" style="color:${riskColor.high}">${scanResult.byRisk.high}</div><div class="l">High risk</div></div>
+  <div class="card"><div class="n" style="color:${riskColor.medium}">${scanResult.byRisk.medium}</div><div class="l">Medium risk</div></div>
+  <div class="card"><div class="n" style="color:${riskColor.low}">${scanResult.byRisk.low}</div><div class="l">Low risk</div></div>
+  <div class="card"><div class="n">${scanResult.servicesCount}</div><div class="l">Services scanned</div></div>
+</div>
+${
+  scanResult.rebootRequired && scanResult.rebootRequired.length
+    ? `<div class="note">⟳ A restart is required to fully apply: ${scanResult.rebootRequired.map(esc).join(', ')}.</div>`
+    : ''
+}
+
+<h2>Predicted impact (${scanResult.issues.length})</h2>
+<table><thead><tr><th>Risk</th><th>Setting</th><th>Change</th><th>Why it may break</th></tr></thead>
+<tbody>${issueRows || '<tr><td colspan="4">No likely breakage detected.</td></tr>'}</tbody></table>
+
+<h2>Full comparison (${comparison.rows.length} settings)</h2>
+<table><thead><tr><th>Δ</th><th>Setting</th><th>Current value</th><th>Baseline value</th></tr></thead>
+<tbody>${cmpRows}</tbody></table>
+</body></html>`;
+
+  const stamp = now.toISOString().slice(0, 19).replace(/[:T]/g, '-');
+  return { html, filename: `GPO-compliance-${std.shortName.replace(/\s+/g, '')}-${stamp}.html` };
+}
+
 module.exports = {
   listBaselines,
   getComparison,
@@ -348,5 +450,6 @@ module.exports = {
   apply,
   getBatches,
   revert,
+  buildReport,
   platformInfo: engine.platformInfo
 };

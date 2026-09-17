@@ -1,7 +1,8 @@
 'use strict';
 
+const fs = require('fs');
 const path = require('path');
-const { app, BrowserWindow, ipcMain, shell, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, Menu, dialog } = require('electron');
 
 const gpo = require('./gpo');
 const updater = require('./updater');
@@ -16,7 +17,7 @@ function createWindow() {
     minHeight: 640,
     backgroundColor: '#0f1420',
     title: 'Local GPO Compliance Tester',
-    icon: path.join(__dirname, '..', '..', 'build', 'icon.png'),
+    icon: path.join(__dirname, '..', 'renderer', 'icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -92,6 +93,17 @@ handle('gpo:scan', (standardId) => gpo.scan(standardId));
 handle('gpo:apply', ({ standardId, settingIds }) => gpo.apply(standardId, settingIds));
 handle('gpo:batches', () => gpo.getBatches());
 handle('gpo:revert', (options) => gpo.revert(options));
+handle('report:export', async (standardId) => {
+  const { html, filename } = await gpo.buildReport(standardId);
+  const result = await dialog.showSaveDialog(mainWindow, {
+    title: 'Save compliance report',
+    defaultPath: filename,
+    filters: [{ name: 'HTML report', extensions: ['html'] }]
+  });
+  if (result.canceled || !result.filePath) return { saved: false };
+  fs.writeFileSync(result.filePath, html, 'utf8');
+  return { saved: true, path: result.filePath };
+});
 handle('updater:check', () => updater.check());
 handle('updater:download', () => updater.download());
 handle('updater:install', () => updater.install());

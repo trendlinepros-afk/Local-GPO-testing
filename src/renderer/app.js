@@ -37,7 +37,8 @@ const state = {
   standardId: null,
   comparison: null,
   selected: new Set(),
-  diffOnly: true
+  diffOnly: true,
+  search: ''
 };
 
 // ---------------------------------------------------------------------------
@@ -91,6 +92,7 @@ async function init() {
   $('#btn-scan').addEventListener('click', runScan);
   $('#btn-rescan').addEventListener('click', runScan);
   $('#btn-revert').addEventListener('click', openRevertModal);
+  $('#btn-export').addEventListener('click', exportReport);
   $('#btn-apply').addEventListener('click', confirmApply);
   $('#btn-select-diff').addEventListener('click', selectAllDiffering);
   $('#btn-clear-sel').addEventListener('click', clearSelection);
@@ -98,6 +100,13 @@ async function init() {
   $('#filter-diff-only').addEventListener('change', (e) => {
     state.diffOnly = e.target.checked;
     renderComparison();
+  });
+  $('#cmp-search').addEventListener('input', (e) => {
+    state.search = e.target.value.trim().toLowerCase();
+    renderComparison();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
   });
 
   wireUpdaterEvents();
@@ -124,15 +133,16 @@ function renderEnvBadges() {
   wrap.innerHTML = '';
   if (p.simulation) {
     wrap.appendChild(el('span', { class: 'badge sim', text: 'Simulation mode' }));
+    wrap.appendChild(el('span', { class: 'badge', text: p.platform }));
   } else {
     wrap.appendChild(el('span', { class: 'badge ok', text: 'Windows' }));
+    wrap.appendChild(
+      el('span', {
+        class: `badge ${p.admin ? 'ok' : 'warn'}`,
+        text: p.admin ? 'Administrator' : 'Not elevated'
+      })
+    );
   }
-  wrap.appendChild(
-    el('span', {
-      class: `badge ${p.admin ? 'ok' : 'warn'}`,
-      text: p.admin ? 'Administrator' : 'Not elevated'
-    })
-  );
 }
 
 // ---------------------------------------------------------------------------
@@ -195,10 +205,15 @@ function renderComparison() {
   const body = $('#cmp-body');
   body.innerHTML = '';
 
-  const rows = state.diffOnly ? data.rows.filter((r) => r.differs) : data.rows;
+  let rows = state.diffOnly ? data.rows.filter((r) => r.differs) : data.rows;
+  if (state.search) {
+    rows = rows.filter(
+      (r) => r.name.toLowerCase().includes(state.search) || r.category.toLowerCase().includes(state.search)
+    );
+  }
   if (!rows.length) {
     body.appendChild(
-      el('tr', {}, [el('td', { colspan: '6', class: 'muted', style: 'padding:18px;' }, 'No settings to show.')])
+      el('tr', {}, [el('td', { colspan: '6', class: 'muted', style: 'padding:18px;' }, 'No settings match.')])
     );
   }
 
@@ -221,12 +236,12 @@ function renderComparison() {
       impactCell.textContent = '—';
     }
 
+    const nameCell = el('div', { class: 'setting-name', text: r.name });
+    if (r.reboot) nameCell.appendChild(el('span', { class: 'reboot-tag', text: '⟳ restart' }));
+
     const tr = el('tr', { class: r.differs ? 'diff' : 'same' }, [
       el('td', { class: 'col-chk' }, [chk]),
-      el('td', {}, [
-        el('div', { class: 'setting-name', text: r.name }),
-        el('div', { class: 'setting-cat', text: r.category })
-      ]),
+      el('td', {}, [nameCell, el('div', { class: 'setting-cat', text: r.category })]),
       el('td', { class: 'val-current', text: r.currentDisplay }),
       el('td', { class: 'arrow', text: r.differs ? '→' : '=' }),
       el('td', { class: 'val-desired', text: r.desiredDisplay }),
@@ -241,6 +256,10 @@ function updateSelCount() {
   $('#sel-count').textContent = String(state.selected.size);
   const rows = state.comparison ? state.comparison.rows.filter((r) => r.differs) : [];
   $('#chk-all').checked = rows.length > 0 && rows.every((r) => state.selected.has(r.id));
+  if (state.comparison) {
+    const s = state.comparison.summary;
+    $('#cmp-summary').textContent = `${s.compliant}/${s.total} already compliant · ${s.differing} differ`;
+  }
 }
 
 function selectAllDiffering() {
@@ -304,6 +323,12 @@ function renderScan(result) {
   const list = $('#scan-issues');
   list.innerHTML = '';
 
+  if (result.rebootRequired && result.rebootRequired.length) {
+    list.appendChild(
+      el('div', { class: 'info-note' }, `⟳ A restart is required to fully apply: ${result.rebootRequired.join(', ')}.`)
+    );
+  }
+
   if (!result.issues.length) {
     list.appendChild(
       el('div', { class: 'no-issues' }, [
@@ -328,11 +353,10 @@ function renderScan(result) {
 
   for (const issue of result.issues) {
     const card = el('div', { class: `issue ${issue.risk}` });
+    const titleNode = el('div', { class: 'issue-title', text: issue.name });
+    if (issue.reboot) titleNode.appendChild(el('span', { class: 'reboot-tag', text: '⟳ restart' }));
     card.appendChild(
-      el('div', { class: 'issue-head' }, [
-        el('div', { class: 'issue-title', text: issue.name }),
-        el('span', { class: `risk-pill ${issue.risk}`, text: issue.risk })
-      ])
+      el('div', { class: 'issue-head' }, [titleNode, el('span', { class: `risk-pill ${issue.risk}`, text: issue.risk })])
     );
     card.appendChild(
       el('div', { class: 'issue-change' }, [
@@ -448,6 +472,12 @@ function showApplyResult(result) {
       ])
     );
   });
+
+  if (result.rebootRequired && result.rebootRequired.length) {
+    body.appendChild(
+      el('div', { class: 'warn-box' }, `⟳ Restart required to fully apply: ${result.rebootRequired.join(', ')}.`)
+    );
+  }
 
   const g = result.gpupdate;
   body.appendChild(
@@ -582,6 +612,27 @@ async function doRevert(options) {
     if (state.standardId) await loadComparison();
   } catch (err) {
     toast('Revert failed: ' + err.message, 'error', 6000);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Export report
+// ---------------------------------------------------------------------------
+async function exportReport() {
+  if (!state.standardId) {
+    toast('Select a compliance standard first.', 'info');
+    return;
+  }
+  const btn = $('#btn-export');
+  btn.disabled = true;
+  try {
+    const res = await unwrap(window.api.exportReport(state.standardId));
+    if (res.saved) toast('Report saved: ' + res.path, 'success', 6000);
+    else toast('Export cancelled.', 'info');
+  } catch (err) {
+    toast('Export failed: ' + err.message, 'error', 6000);
+  } finally {
+    btn.disabled = false;
   }
 }
 

@@ -230,6 +230,7 @@
       "hive": "HKLM",
       "path": "SYSTEM\\CurrentControlSet\\Control\\Lsa",
       "value": "LmCompatibilityLevel",
+      "reboot": true,
       "regType": "REG_DWORD",
       "valueKind": "int",
       "format": "lmcompat",
@@ -288,6 +289,7 @@
       "hive": "HKLM",
       "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
       "value": "EnableLUA",
+      "reboot": true,
       "regType": "REG_DWORD",
       "valueKind": "bool",
       "format": "enabledisable",
@@ -332,6 +334,7 @@
       "regType": "REG_DWORD",
       "valueKind": "int",
       "format": "smb1",
+      "reboot": true,
       "generalImpact": {
         "risk": "high",
         "detail": "Devices that only speak SMBv1 lose access to shares on this machine: Windows XP/2003, some NAS/multifunction printers, and older backup appliances. Requires a reboot to fully unload."

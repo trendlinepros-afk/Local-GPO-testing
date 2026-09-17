@@ -59,7 +59,7 @@ function formatValue(raw, setting) {
     case 'days':
       return `${s} day(s)`;
     case 'maxage':
-      return s === '0' ? 'Never expires' : `${s} day(s)`;
+      return s === '0' || s === '-1' ? 'Never expires' : `${s} day(s)`;
     case 'minutes':
       return `${s} minute(s)`;
     case 'lockoutduration':

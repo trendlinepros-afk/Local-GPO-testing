@@ -36,8 +36,16 @@ function escapeRegExp(s) {
 
 async function checkAdmin() {
   if (isSimulation()) return true;
-  const res = await run('net session');
-  return res.code === 0;
+  // Prefer the WindowsPrincipal check — reliable even when the Server service
+  // (which `net session` depends on) is stopped.
+  const ps =
+    '[bool]([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent())' +
+    '.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)';
+  const res = await run(`powershell -NoProfile -NonInteractive -Command "${ps}"`);
+  if (res.code === 0 && /true/i.test(res.stdout)) return true;
+  if (res.code === 0 && /false/i.test(res.stdout)) return false;
+  const net = await run('net session');
+  return net.code === 0;
 }
 
 async function platformInfo() {

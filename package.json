@@ -1,6 +1,6 @@
 {
   "name": "local-gpo-compliance-tester",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Preview and test how rolling out a compliance standard (NIST, CMMC L2, HIPAA, SOC2) would change your Windows Local Group Policy — scan for what could break, apply with one click, and revert in batches.",
   "author": {
     "name": "trendlinepros-afk"

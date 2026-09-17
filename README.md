@@ -33,6 +33,13 @@ back — all changes, a single batch, or one setting at a time.
 - **Revert in batches** — every apply is recorded. The **Revert Changes** dialog
   lets you undo **everything**, a **whole batch**, **selected items**, or a
   **single setting**, then re‑runs `gpupdate /force`.
+- **Restart-required warnings** — settings that only take full effect after a
+  reboot (SMBv1, UAC master switch, LM authentication level) are flagged in the
+  scan, the comparison, and the apply summary.
+- **Export report** — save a self-contained HTML compliance report (summary,
+  predicted impact, and full current-vs-baseline table) for auditors.
+- **Filter & search** — filter the comparison table by name/category and toggle
+  differences-only.
 - **Check for updates** — pulls the latest published GitHub Release and installs
   it in place (via `electron-updater`).
 - **Simulation mode** — on non‑Windows machines (or with `GPO_SIMULATE=1`) the

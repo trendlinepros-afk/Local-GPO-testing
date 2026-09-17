@@ -8,6 +8,7 @@
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Local GPO Compliance Tester</title>
+    <link rel="icon" href="icon.png" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -51,6 +52,9 @@
             <button id="btn-scan" class="btn btn-primary" type="button">
               <span class="btn-icon">🔍</span> Scan for Potential Issues
             </button>
+            <button id="btn-export" class="btn btn-ghost" type="button">
+              <span class="btn-icon">⭳</span> Export report
+            </button>
             <button id="btn-revert" class="btn btn-warn" type="button">
               <span class="btn-icon">↩</span> Revert Changes
             </button>
@@ -73,6 +77,8 @@
         <div class="panel-head">
           <h2><span class="step-num">3</span> Current settings vs. baseline</h2>
           <div class="compare-tools">
+            <span id="cmp-summary" class="cmp-summary"></span>
+            <input type="search" id="cmp-search" class="cmp-search" placeholder="Filter settings…" />
             <label class="chk-inline">
               <input type="checkbox" id="filter-diff-only" checked />
               Show only differences
